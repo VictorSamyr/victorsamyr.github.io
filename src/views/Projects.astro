@@ -1,0 +1,69 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { t, ui, type Lang } from '../i18n';
+import { projects, categories, type Category } from '../data/projects';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const cats = Object.keys(categories) as Category[];
+---
+<Base
+  lang={lang}
+  page="projects"
+  title={pt ? 'Projetos' : 'Projects'}
+  description={pt
+    ? 'Projetos de Victor Samyr em pesquisa, IA, visão computacional e engenharia de software.'
+    : 'Victor Samyr’s projects in research, AI, computer vision and software engineering.'}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">{pt ? 'Projetos' : 'Projects'}</p>
+      <h1>{pt ? 'Do experimento ao software em produção' : 'From experiment to production software'}</h1>
+      <p class="lead">{pt
+        ? 'Projetos de pesquisa aplicada, estudos e engenharia de software. Cada um está marcado com o que ele realmente é: prova de conceito, estudo, projeto de disciplina ou trabalho em andamento.'
+        : 'Applied research, studies and software engineering. Each one is labeled for what it really is: proof of concept, study, course project or work in progress.'}</p>
+    </div>
+  </section>
+
+  <section class="section projects-section">
+    <div class="container">
+      <div class="filters no-print" role="group" aria-label={pt ? 'Filtrar projetos' : 'Filter projects'}>
+        <button type="button" class="filter" aria-pressed="true" data-filter="all">{t(ui.all, lang)}</button>
+        {cats.map((c) => (
+          <button type="button" class="filter" aria-pressed="false" data-filter={c}>{t(categories[c], lang)}</button>
+        ))}
+      </div>
+      <div class="grid grid-2" id="project-grid">
+        {projects.map((p) => <ProjectCard project={p} lang={lang} detailed />)}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter');
+  const cards = document.querySelectorAll<HTMLElement>('#project-grid .project');
+  buttons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.filter;
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      cards.forEach((c) => {
+        c.hidden = f !== 'all' && c.dataset.category !== f;
+        c.classList.add('in');
+      });
+    })
+  );
+</script>
+
+<style>
+  .projects-section { padding-top: 0; border-top: 0 !important; }
+  .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.75rem; }
+  .filter {
+    font: 500 0.88rem var(--font-sans); padding: 0.45rem 0.95rem; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+  }
+  .filter:hover { color: var(--text); border-color: var(--accent); }
+  .filter[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+</style>

@@ -1,0 +1,30 @@
+---
+import Icon from './Icon.astro';
+import { formatDay, t, ui, type Lang } from '../i18n';
+import type { IEEEEvent } from '../data/leadership';
+
+interface Props { event: IEEEEvent; lang: Lang; compact?: boolean }
+const { event: e, lang, compact = false } = Astro.props;
+const when = formatDay(e.date, lang, e.endDate);
+---
+<li class="event reveal">
+  <span class="when">{when} · {t(e.format, lang)}</span>
+  <h3>{t(e.title, lang)}</h3>
+  {!compact && <p class="muted">{t(e.summary, lang)}</p>}
+  <div class="meta">
+    {e.audience && <span class="mono muted"><Icon name="users" size={14} /> {e.audience} {t(ui.participants, lang)}</span>}
+    {e.role && <span class="mono role"><strong>{t(ui.myRole, lang)}:</strong> {t(e.role, lang)}</span>}
+    {e.url && !compact && (
+      <a class="link-arrow mono" href={e.url} target="_blank" rel="noopener">Instagram <Icon name="arrow-up-right" size={14} /></a>
+    )}
+  </div>
+</li>
+
+<style>
+  h3 { margin: 0.2rem 0 0.4rem; font-size: 1.15rem; }
+  p { font-size: 0.97rem; margin-bottom: 0.6rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; align-items: center; }
+  .meta span { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .role { color: var(--text); }
+  .role strong { color: var(--accent); font-weight: 500; }
+</style>

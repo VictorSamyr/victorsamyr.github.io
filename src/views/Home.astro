@@ -1,0 +1,258 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import EventItem from '../components/EventItem.astro';
+import { routes, t, ui, formatMonth, type Lang } from '../i18n';
+import { profile, highlights } from '../data/profile';
+import { interests, currentResearch } from '../data/research';
+import { projects } from '../data/projects';
+import { ieee, events } from '../data/leadership';
+import { news } from '../data/news';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const today = new Date().toISOString().slice(0, 10);
+const upcoming = events.filter((e) => (e.endDate ?? e.date) >= today).sort((a, b) => a.date.localeCompare(b.date));
+const recent = events.filter((e) => (e.endDate ?? e.date) < today).slice(0, 2);
+const shownEvents = [...upcoming, ...recent].slice(0, 3);
+const featured = projects.filter((p) => p.featured).slice(0, 3);
+---
+<Base
+  lang={lang}
+  page="home"
+  description={pt
+    ? 'Victor Samyr: pesquisador de graduação em Sistemas Inteligentes, IA e Ciência de Dados na UFAL, com experiência em engenharia de software e liderança no IEEE.'
+    : 'Victor Samyr: undergraduate researcher in Intelligent Systems, AI and Data Science at UFAL, with software engineering experience and IEEE leadership.'}
+>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <p class="eyebrow">{pt ? 'Pesquisa · Engenharia · Liderança' : 'Research · Engineering · Leadership'}</p>
+        <h1>{profile.name}</h1>
+        <p class="role">{t(profile.role, lang)}</p>
+        <p class="tagline">{t(profile.tagline, lang)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href={routes.research[lang]}>
+            {pt ? 'Conheça minha pesquisa' : 'Explore my research'} <Icon name="arrow-right" size={18} />
+          </a>
+          <a class="btn btn-ghost" href={routes.cv[lang]}><Icon name="file-text" size={18} /> {pt ? 'Currículo' : 'CV'}</a>
+        </div>
+        <ul class="pill-links">
+          <li><a href={`mailto:${profile.email}`}><Icon name="mail" size={14} /> Email</a></li>
+          {profile.links.map((l) => <li><a href={l.url} target="_blank" rel="me noopener">{l.label}</a></li>)}
+        </ul>
+      </div>
+      <figure class="portrait">
+        <img src={profile.photo} alt={pt ? 'Foto de Victor Samyr' : 'Photo of Victor Samyr'} width="400" height="400" loading="eager" />
+        <figcaption>
+          <span class="dot" aria-hidden="true"></span>
+          <span>{t(profile.status, lang)}</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- HIGHLIGHTS -->
+  <section class="highlights-wrap" aria-label={pt ? 'Destaques' : 'Highlights'}>
+    <div class="container">
+      <ul class="highlights">
+        {highlights.map((h) => (
+          <li class="reveal">
+            <strong>{t(h.value, lang)}</strong>
+            <span>{t(h.label, lang)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- INTERESTS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{pt ? 'Interesses de pesquisa' : 'Research interests'}</p>
+          <h2>{pt ? 'O que me move' : 'What drives me'}</h2>
+          <p>{pt
+            ? 'Sistemas inteligentes que funcionam fora do laboratório: confiáveis, mensuráveis e úteis para quem depende deles.'
+            : 'Intelligent systems that work outside the lab: reliable, measurable and useful to the people who depend on them.'}</p>
+        </div>
+      </div>
+      <div class="grid grid-interests">
+        {interests.map((i) => (
+          <article class="card interest reveal">
+            <span class="interest-icon"><Icon name={i.icon} size={20} /></span>
+            <h3>{t(i.title, lang)}</h3>
+            <p class="muted">{t(i.text, lang)}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CURRENT RESEARCH -->
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">{pt ? 'Pesquisa atual' : 'Current research'}</p>
+      <article class="card current reveal">
+        <div class="current-meta">
+          <span class="badge accent">{t(currentResearch.program, lang)}</span>
+          <span class="mono muted">{t(currentResearch.period, lang)}</span>
+        </div>
+        <h2>{t(currentResearch.title, lang)}</h2>
+        <p class="muted">{t(currentResearch.summary, lang)}</p>
+        <dl class="current-dl">
+          <div><dt>{pt ? 'Orientador' : 'Advisor'}</dt><dd>{currentResearch.advisor}</dd></div>
+          <div><dt>{pt ? 'Laboratório' : 'Lab'}</dt><dd>{t(currentResearch.lab, lang)}</dd></div>
+        </dl>
+        <a class="link-arrow" href={routes.research[lang]}>{pt ? 'Ver pesquisa e formação' : 'See research & training'} <Icon name="arrow-right" size={16} /></a>
+      </article>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{pt ? 'Projetos' : 'Projects'}</p>
+          <h2>{pt ? 'Projetos em destaque' : 'Selected projects'}</h2>
+        </div>
+        <a class="link-arrow" href={routes.projects[lang]}>{t(ui.seeAll, lang)} <Icon name="arrow-right" size={16} /></a>
+      </div>
+      <div class="grid grid-3">
+        {featured.map((p) => <ProjectCard project={p} lang={lang} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- LEADERSHIP + NEWS -->
+  <section class="section">
+    <div class="container split">
+      <div>
+        <p class="eyebrow">{pt ? 'Liderança' : 'Leadership'}</p>
+        <h2>{t(ieee.role, lang)}, {t(ieee.org, lang)}</h2>
+        <p class="muted">{t(ieee.summary, lang)}</p>
+        <ul class="timeline compact-events">
+          {shownEvents.map((e) => <EventItem event={e} lang={lang} compact />)}
+        </ul>
+        <p><a class="link-arrow" href={routes.leadership[lang]}>{pt ? 'Ver liderança e eventos' : 'See leadership & events'} <Icon name="arrow-right" size={16} /></a></p>
+      </div>
+      <div>
+        <p class="eyebrow">{pt ? 'Novidades' : 'News'}</p>
+        <h2>{pt ? 'Linha do tempo' : 'Timeline'}</h2>
+        <ul class="news">
+          {news.map((n) => (
+            <li class="reveal">
+              <time class="mono" datetime={n.date}>{formatMonth(n.date, lang)}</time>
+              <span>{t(n.text, lang)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section contact">
+    <div class="container">
+      <div class="contact-box card reveal">
+        <div>
+          <p class="eyebrow">{t(ui.contact, lang)}</p>
+          <h2>{pt ? 'Vamos conversar?' : 'Let’s talk'}</h2>
+          <p class="muted">{pt
+            ? 'Para colaborações de pesquisa, oportunidades de iniciação científica, estágios em P&D ou parcerias com o IEEE UFAL.'
+            : 'For research collaborations, undergraduate research opportunities, R&D internships or partnerships with IEEE UFAL.'}</p>
+        </div>
+        <a class="btn btn-primary" href={`mailto:${profile.email}`}><Icon name="mail" size={18} /> {profile.email}</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { padding: clamp(40px, 8vw, 96px) 0 clamp(32px, 5vw, 56px); position: relative; }
+  .hero::before {
+    content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(600px 300px at 85% 10%, var(--accent-soft), transparent 70%),
+      radial-gradient(500px 260px at 0% 100%, var(--warm-soft), transparent 70%);
+  }
+  .hero-grid { display: grid; grid-template-columns: 1fr auto; gap: clamp(2rem, 6vw, 4.5rem); align-items: center; }
+  h1 { margin-bottom: 0.2em; }
+  .role { font-family: var(--font-serif); font-size: clamp(1.2rem, 2.4vw, 1.5rem); color: var(--accent); margin-bottom: 1rem; line-height: 1.35; }
+  .tagline { font-size: 1.12rem; color: var(--muted); max-width: 58ch; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.75rem 0 1.5rem; }
+  .portrait { margin: 0; width: clamp(220px, 26vw, 300px); }
+  .portrait img {
+    width: 100%; height: auto; aspect-ratio: 1; object-fit: cover;
+    border-radius: 24px; border: 1px solid var(--border); box-shadow: var(--shadow);
+    filter: saturate(0.92);
+  }
+  .portrait figcaption {
+    display: flex; align-items: center; gap: 0.55rem; margin-top: 0.9rem;
+    font-size: 0.85rem; color: var(--muted); line-height: 1.35;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #22a06b; flex-shrink: 0; box-shadow: 0 0 0 4px rgba(34, 160, 107, 0.18); }
+
+  .highlights {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden;
+  }
+  .highlights li { padding: 1.25rem 1.4rem; display: flex; flex-direction: column; gap: 0.2rem; }
+  .highlights li + li { border-left: 1px solid var(--border); }
+  .highlights strong { font-family: var(--font-serif); font-size: 1.7rem; font-weight: 600; color: var(--text); line-height: 1.1; }
+  .highlights span { font-size: 0.86rem; color: var(--muted); line-height: 1.4; }
+
+  .grid-interests { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 1000px) { .grid-interests { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .grid-interests { grid-template-columns: 1fr; } }
+  .interest h3 { font-size: 1.12rem; }
+  .interest p { font-size: 0.95rem; margin: 0; }
+  .interest-icon {
+    display: inline-flex; width: 40px; height: 40px; align-items: center; justify-content: center;
+    border-radius: 10px; background: var(--accent-soft); color: var(--accent); margin-bottom: 1rem;
+  }
+
+  .current { padding: clamp(1.5rem, 4vw, 2.5rem); border-left: 3px solid var(--accent); }
+  .current h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-top: 1rem; }
+  .current-meta { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+  .current-dl { display: flex; flex-wrap: wrap; gap: 0.75rem 2.5rem; margin: 1.25rem 0 1.5rem; }
+  .current-dl dt { font: 500 0.72rem var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
+  .current-dl dd { margin: 0.15rem 0 0; font-weight: 500; }
+
+  .split { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(2rem, 6vw, 5rem); }
+  .split h2 { font-size: clamp(1.5rem, 3vw, 1.9rem); }
+  .compact-events { margin: 2rem 0 1.5rem; }
+  .news { list-style: none; margin: 1.5rem 0 0; padding: 0; }
+  .news li { display: grid; grid-template-columns: 5.5rem 1fr; gap: 1rem; padding: 0.9rem 0; border-top: 1px solid var(--border); font-size: 0.97rem; }
+  .news li:first-child { border-top: 0; padding-top: 0; }
+  .news time { color: var(--faint); padding-top: 0.15rem; }
+
+  .contact-box { display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; padding: clamp(1.5rem, 5vw, 3rem); }
+  .contact-box > div { max-width: 56ch; }
+  .contact-box p { margin: 0; }
+
+  @media (max-width: 860px) {
+    .highlights { grid-template-columns: repeat(2, 1fr); }
+    .highlights li:nth-child(3) { border-left: 0; }
+    .highlights li:nth-child(n + 3) { border-top: 1px solid var(--border); }
+    .split { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 680px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .portrait { order: -1; width: 132px; }
+    .portrait img { border-radius: 50%; }
+    .portrait figcaption { display: none; }
+    .contact-box .btn { width: 100%; justify-content: center; word-break: break-all; }
+  }
+  @media (max-width: 420px) {
+    .highlights { grid-template-columns: 1fr; }
+    .highlights li + li { border-left: 0; border-top: 1px solid var(--border); }
+    .news li { grid-template-columns: 1fr; gap: 0.2rem; }
+  }
+</style>

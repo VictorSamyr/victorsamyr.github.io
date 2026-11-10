@@ -1,0 +1,227 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { t, type Lang } from '../i18n';
+import { profile, education, honors, skills, languages } from '../data/profile';
+import { currentResearch, researchTraining, publications } from '../data/research';
+import { experience } from '../data/experience';
+import { projects } from '../data/projects';
+import { ieee } from '../data/leadership';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const researchSel = projects.filter((p) => p.category === 'research').slice(0, 3);
+const engSel = projects.filter((p) => p.category !== 'research').slice(0, 3);
+const host = (u: string) => u.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+---
+<Base
+  lang={lang}
+  page="cv"
+  title={pt ? 'Currículo' : 'CV'}
+  description={pt ? 'Currículo de Victor Samyr, em versões acadêmica e para o mercado.' : 'Victor Samyr’s CV, in academic and industry versions.'}
+>
+  <section class="page-hero no-print">
+    <div class="container">
+      <p class="eyebrow">{pt ? 'Currículo' : 'Curriculum vitae'}</p>
+      <h1>{pt ? 'Currículo' : 'CV'}</h1>
+      <div class="cv-tools">
+        <div class="seg" role="group" aria-label={pt ? 'Versão do currículo' : 'CV version'}>
+          <button type="button" data-mode="academic" aria-pressed="true">{pt ? 'Acadêmico' : 'Academic'}</button>
+          <button type="button" data-mode="industry" aria-pressed="false">{pt ? 'Mercado' : 'Industry'}</button>
+        </div>
+        <button type="button" class="btn btn-ghost" id="print-btn"><Icon name="printer" size={18} /> {pt ? 'Salvar em PDF' : 'Save as PDF'}</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="cv-wrap">
+    <div class="container">
+      <article class="cv card" id="cv" data-mode="academic">
+        <header class="cv-header">
+          <h2 class="cv-name">{profile.fullName}</h2>
+          <p class="cv-role">{t(profile.role, lang)}</p>
+          <p class="cv-contacts mono">
+            <span>{t(profile.location, lang)}</span>
+            <a href={`mailto:${profile.email}`}>{profile.email}</a>
+            <a href="https://victorsamyr.me">victorsamyr.me</a>
+            {profile.links.map((l) => <a href={l.url}>{l.label === 'LinkedIn' ? 'LinkedIn' : host(l.url)}</a>)}
+          </p>
+        </header>
+
+        <section class="cv-sec s-edu">
+          <h3>{pt ? 'Formação' : 'Education'}</h3>
+          {education.map((e) => (
+            <div class="item">
+              <div class="item-head"><strong>{t(e.degree, lang)}</strong><span class="date">{t(e.period, lang)}</span></div>
+              <div class="sub">{t(e.institution, lang)}</div>
+              {e.note && <div class="note">{t(e.note, lang)}</div>}
+            </div>
+          ))}
+        </section>
+
+        <section class="cv-sec s-research">
+          <h3>{pt ? 'Pesquisa' : 'Research'}</h3>
+          <div class="item">
+            <div class="item-head"><strong>{pt ? 'Iniciação Científica (PIBIC)' : 'Undergraduate Research (PIBIC)'}</strong><span class="date">{t(currentResearch.period, lang)}</span></div>
+            <div class="sub">{t(currentResearch.lab, lang)} · {pt ? 'Orientador' : 'Advisor'}: {currentResearch.advisor}</div>
+            <div class="note">“{t(currentResearch.title, lang)}”. {t(currentResearch.stage, lang)}</div>
+          </div>
+          {researchTraining.map((r) => (
+            <div class="item">
+              <div class="item-head"><strong>{t(r.title, lang)}</strong><span class="date">{t(r.period, lang)}</span></div>
+              <div class="sub">{t(r.org, lang)}</div>
+              <div class="note">{t(r.text, lang)}</div>
+            </div>
+          ))}
+          {publications.length > 0 && (
+            <div class="item">
+              <strong>{pt ? 'Publicações' : 'Publications'}</strong>
+              <ul>{publications.map((p) => <li>{p.authors}. {p.title}. <em>{p.venue}</em>, {p.year}.</li>)}</ul>
+            </div>
+          )}
+        </section>
+
+        <section class="cv-sec s-exp">
+          <h3>{pt ? 'Experiência profissional' : 'Professional experience'}</h3>
+          {experience.map((e) => (
+            <div class="item">
+              <div class="item-head"><strong>{t(e.role, lang)}</strong><span class="date">{t(e.period, lang)}</span></div>
+              <div class="sub">{e.org} · {t(e.location, lang)}</div>
+              <ul>{e.points.map((p) => <li>{t(p, lang)}</li>)}</ul>
+              <div class="note mono">{e.tags.join(' · ')}</div>
+            </div>
+          ))}
+        </section>
+
+        <section class="cv-sec s-proj-research">
+          <h3>{pt ? 'Projetos de pesquisa' : 'Research projects'}</h3>
+          {researchSel.map((p) => (
+            <div class="item">
+              <div class="item-head"><strong>{t(p.title, lang)}</strong><span class="date">{t(p.year, lang)}</span></div>
+              <div class="note">{t(p.summary, lang)}</div>
+            </div>
+          ))}
+        </section>
+
+        <section class="cv-sec s-proj-eng">
+          <h3>{pt ? 'Projetos de software' : 'Software projects'}</h3>
+          {engSel.map((p) => (
+            <div class="item">
+              <div class="item-head"><strong>{t(p.title, lang)}</strong><span class="date">{t(p.year, lang)}</span></div>
+              <div class="note">{t(p.summary, lang)}</div>
+            </div>
+          ))}
+        </section>
+
+        <section class="cv-sec s-lead">
+          <h3>{pt ? 'Liderança e extensão' : 'Leadership & service'}</h3>
+          <div class="item">
+            <div class="item-head"><strong>{t(ieee.role, lang)}, {t(ieee.org, lang)}</strong><span class="date">{t(ieee.period, lang)}</span></div>
+            <ul>{ieee.points.map((p) => <li>{t(p, lang)}</li>)}</ul>
+          </div>
+        </section>
+
+        <section class="cv-sec s-honors">
+          <h3>{pt ? 'Prêmios e distinções' : 'Honors & awards'}</h3>
+          {honors.map((h) => (
+            <div class="item">
+              <div class="item-head"><strong>{t(h.title, lang)}</strong><span class="date">{h.year}</span></div>
+              <div class="note">{t(h.detail, lang)}</div>
+            </div>
+          ))}
+        </section>
+
+        <section class="cv-sec s-skills">
+          <h3>{pt ? 'Competências e idiomas' : 'Skills & languages'}</h3>
+          <dl class="skills">
+            {skills.map((s) => (<><dt>{t(s.group, lang)}</dt><dd>{s.items.join(', ')}</dd></>))}
+            <dt>{pt ? 'Idiomas' : 'Languages'}</dt>
+            <dd>{languages.map((l) => `${t(l.name, lang)} (${t(l.level, lang)})`).join('; ')}</dd>
+          </dl>
+        </section>
+      </article>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const cv = document.getElementById('cv')!;
+  const segBtns = document.querySelectorAll<HTMLButtonElement>('.seg button');
+  const setMode = (mode: string) => {
+    cv.dataset.mode = mode;
+    segBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+  };
+  const initial = new URLSearchParams(location.search).get('v');
+  if (initial === 'industry') setMode('industry');
+  segBtns.forEach((b) => b.addEventListener('click', () => {
+    setMode(b.dataset.mode!);
+    const url = new URL(location.href);
+    if (b.dataset.mode === 'industry') url.searchParams.set('v', 'industry');
+    else url.searchParams.delete('v');
+    history.replaceState(null, '', url);
+  }));
+  document.getElementById('print-btn')?.addEventListener('click', () => print());
+</script>
+
+<style>
+  .cv-tools { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 1.25rem; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; padding: 3px; background: var(--surface); }
+  .seg button {
+    font: 600 0.9rem var(--font-sans); border: 0; background: transparent; color: var(--muted);
+    padding: 0.5rem 1rem; border-radius: 999px; cursor: pointer;
+  }
+  .seg button[aria-pressed='true'] { background: var(--accent); color: var(--bg); }
+
+  .cv-wrap { padding-bottom: 3rem; }
+  .cv { display: flex; flex-direction: column; gap: 1.75rem; padding: clamp(1.5rem, 5vw, 3.25rem); max-width: 880px; }
+  .cv-header { order: 0; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; }
+  .cv-name { font-size: clamp(1.7rem, 4vw, 2.2rem); margin: 0 0 0.2rem; }
+  .cv-role { color: var(--accent); font-family: var(--font-serif); font-size: 1.1rem; margin: 0 0 0.75rem; }
+  .cv-contacts { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; margin: 0; color: var(--muted); }
+  .cv-contacts a { color: var(--muted); text-decoration: none; }
+  .cv-contacts a:hover { color: var(--accent); }
+
+  .cv-sec h3 {
+    font: 600 0.78rem var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent);
+    margin: 0 0 0.9rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
+  }
+  .item { margin-bottom: 1rem; font-size: 0.95rem; }
+  .item:last-child { margin-bottom: 0; }
+  .item-head { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+  .date { font-family: var(--font-mono); font-size: 0.78rem; color: var(--faint); white-space: nowrap; }
+  .sub { color: var(--muted); font-style: italic; }
+  .note { color: var(--muted); margin-top: 0.2rem; }
+  .item ul { margin: 0.35rem 0 0.3rem; padding-left: 1.1rem; color: var(--muted); }
+  .item li { margin-bottom: 0.2rem; }
+  .skills { display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 1.25rem; margin: 0; font-size: 0.95rem; }
+  .skills dt { font-weight: 600; }
+  .skills dd { margin: 0; color: var(--muted); }
+
+  /* Ordem acadêmica (padrão) */
+  .s-edu { order: 1; } .s-research { order: 2; } .s-honors { order: 3; } .s-proj-research { order: 4; }
+  .s-lead { order: 5; } .s-exp { order: 6; } .s-proj-eng { order: 7; } .s-skills { order: 8; }
+  /* Ordem para o mercado */
+  .cv[data-mode='industry'] .s-exp { order: 1; }
+  .cv[data-mode='industry'] .s-proj-eng { order: 2; }
+  .cv[data-mode='industry'] .s-skills { order: 3; }
+  .cv[data-mode='industry'] .s-edu { order: 4; }
+  .cv[data-mode='industry'] .s-research { order: 5; }
+  .cv[data-mode='industry'] .s-proj-research { order: 6; }
+  .cv[data-mode='industry'] .s-lead { order: 7; }
+  .cv[data-mode='industry'] .s-honors { order: 8; }
+
+  @media (max-width: 560px) {
+    .item-head { flex-direction: column; gap: 0; }
+    .skills { grid-template-columns: 1fr; }
+    .skills dd { margin-bottom: 0.5rem; }
+  }
+  @media print {
+    .cv-wrap .container { padding: 0; }
+    .cv { border: 0; padding: 0; max-width: none; gap: 0.9rem; }
+    .item { break-inside: avoid; font-size: 9.5pt; margin-bottom: 0.5rem; }
+    .cv-sec h3 { margin-bottom: 0.45rem; }
+    .cv-contacts a { color: #000; }
+  }
+  @page { margin: 14mm 14mm; }
+</style>

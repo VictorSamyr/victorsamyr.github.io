@@ -1,0 +1,43 @@
+---
+import Icon from './Icon.astro';
+import { t, ui, type Lang } from '../i18n';
+import { categories, type Project } from '../data/projects';
+
+interface Props { project: Project; lang: Lang; detailed?: boolean }
+const { project: p, lang, detailed = false } = Astro.props;
+---
+<article class="project card reveal" data-category={p.category}>
+  <div class="project-top">
+    <span class="mono muted">{t(categories[p.category], lang)}</span>
+    <span class="mono muted">{t(p.year, lang)}</span>
+  </div>
+  <h3>{t(p.title, lang)}</h3>
+  {p.status && <p class="status"><span class="badge">{t(p.status, lang)}</span></p>}
+  <p class="muted summary">{t(p.summary, lang)}</p>
+  {detailed && p.points && (
+    <ul class="points">
+      {p.points.map((pt) => <li>{t(pt, lang)}</li>)}
+    </ul>
+  )}
+  <div class="project-foot">
+    <ul class="tags">{p.tags.map((tag) => <li>{t(tag, lang)}</li>)}</ul>
+    {p.repo && (
+      <a class="link-arrow repo" href={p.repo} target="_blank" rel="noopener">
+        {t(ui.repo, lang)} <Icon name="arrow-up-right" size={16} />
+      </a>
+    )}
+  </div>
+</article>
+
+<style>
+  .project { display: flex; flex-direction: column; gap: 0.25rem; transition: border-color 0.2s, transform 0.2s; }
+  .project:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); transform: translateY(-2px); }
+  .project-top { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.5rem; }
+  h3 { margin-bottom: 0.35rem; }
+  .status { margin: 0 0 0.4rem; }
+  .summary { font-size: 0.97rem; }
+  .points { margin: 0 0 1rem; padding-left: 1.1rem; font-size: 0.93rem; color: var(--muted); }
+  .points li { margin-bottom: 0.3rem; }
+  .project-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: end; gap: 0.75rem; flex-wrap: wrap; padding-top: 0.5rem; }
+  .repo { font-size: 0.9rem; }
+</style>

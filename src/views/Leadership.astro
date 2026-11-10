@@ -1,0 +1,85 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import EventItem from '../components/EventItem.astro';
+import { t, ui, type Lang } from '../i18n';
+import { ieee, events } from '../data/leadership';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const today = new Date().toISOString().slice(0, 10);
+const upcoming = events.filter((e) => (e.endDate ?? e.date) >= today).sort((a, b) => a.date.localeCompare(b.date));
+const past = events.filter((e) => (e.endDate ?? e.date) < today).sort((a, b) => b.date.localeCompare(a.date));
+---
+<Base
+  lang={lang}
+  page="leadership"
+  title={pt ? 'Liderança' : 'Leadership'}
+  description={pt
+    ? 'Victor Samyr é tesoureiro do Ramo Estudantil IEEE UFAL e ajuda a organizar eventos de tecnologia, pesquisa e carreira.'
+    : 'Victor Samyr is Treasurer of the IEEE UFAL Student Branch and helps organize technology, research and career events.'}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">{pt ? 'Liderança e impacto' : 'Leadership & impact'}</p>
+      <h1>{t(ieee.org, lang)}</h1>
+      <p class="lead">{t(ieee.summary, lang)}</p>
+    </div>
+  </section>
+
+  <section class="section role-section">
+    <div class="container">
+      <div class="card role reveal">
+        <div class="role-head">
+          <span class="role-icon"><Icon name="users" size={22} /></span>
+          <div>
+            <h2>{t(ieee.role, lang)}</h2>
+            <p class="mono muted">{t(ieee.period, lang)}</p>
+          </div>
+        </div>
+        <ul class="points">
+          {ieee.points.map((p) => <li>{t(p, lang)}</li>)}
+        </ul>
+        <a class="link-arrow" href={ieee.instagram} target="_blank" rel="noopener">@ieee.ufal <Icon name="arrow-up-right" size={16} /></a>
+      </div>
+    </div>
+  </section>
+
+  {upcoming.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <p class="eyebrow">{t(ui.upcoming, lang)}</p>
+        <h2>{pt ? 'Próximos eventos do ramo' : 'Upcoming branch events'}</h2>
+        <ul class="timeline events">
+          {upcoming.map((e) => <EventItem event={e} lang={lang} />)}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">{t(ui.past, lang)}</p>
+      <h2>{pt ? 'Eventos que ajudei a organizar' : 'Events I helped organize'}</h2>
+      <ul class="timeline events">
+        {past.map((e) => <EventItem event={e} lang={lang} />)}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .role-section { padding-top: 0; border-top: 0 !important; }
+  .role { padding: clamp(1.5rem, 4vw, 2.5rem); }
+  .role-head { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.25rem; }
+  .role-head h2 { margin: 0; }
+  .role-head p { margin: 0; }
+  .role-icon {
+    display: inline-flex; width: 48px; height: 48px; align-items: center; justify-content: center;
+    border-radius: 12px; background: var(--accent-soft); color: var(--accent);
+  }
+  .points { margin: 0 0 1.25rem; padding-left: 1.1rem; }
+  .points li { margin-bottom: 0.5rem; }
+  .events { margin-top: 2rem; max-width: 760px; }
+</style>

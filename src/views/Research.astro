@@ -1,0 +1,152 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { routes, t, type Lang } from '../i18n';
+import { interests, currentResearch, researchTraining, publications } from '../data/research';
+import { projects } from '../data/projects';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const pt = lang === 'pt';
+const researchProjects = projects.filter((p) => p.category === 'research');
+---
+<Base
+  lang={lang}
+  page="research"
+  title={pt ? 'Pesquisa' : 'Research'}
+  description={pt
+    ? 'Pesquisa de Victor Samyr: PIBIC sobre verificação de conteúdos falsos no Judiciário, interesses em IA, ciência de dados, visão computacional e informática médica.'
+    : 'Victor Samyr’s research: PIBIC project on verifying false content in the judiciary, and interests in AI, data science, computer vision and medical informatics.'}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">{pt ? 'Pesquisa' : 'Research'}</p>
+      <h1>{pt ? 'Pesquisa e formação científica' : 'Research & scientific training'}</h1>
+      <p class="lead">{pt
+        ? 'Estou no começo da trajetória acadêmica e construindo uma base sólida: iniciação científica, metodologia de revisão sistemática e projetos experimentais com dados reais.'
+        : 'I am early in my academic path and building a solid foundation: undergraduate research, systematic review methodology and experimental projects with real data.'}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">{pt ? 'Projeto atual' : 'Current project'}</p>
+      <article class="card current reveal">
+        <div class="meta-row">
+          <span class="badge accent">{t(currentResearch.program, lang)}</span>
+          <span class="mono muted">{t(currentResearch.period, lang)}</span>
+        </div>
+        <h2>{t(currentResearch.title, lang)}</h2>
+        <p>{t(currentResearch.summary, lang)}</p>
+        <p class="stage"><Icon name="flask-conical" size={18} /> <span>{t(currentResearch.stage, lang)}</span></p>
+        <dl>
+          <div><dt>{pt ? 'Orientador' : 'Advisor'}</dt><dd>{currentResearch.advisor}</dd></div>
+          <div><dt>{pt ? 'Laboratório' : 'Lab'}</dt><dd>{t(currentResearch.lab, lang)}</dd></div>
+          <div><dt>{pt ? 'Financiamento' : 'Funding'}</dt><dd>{pt ? 'Bolsa PIBIC/UFAL' : 'PIBIC/UFAL fellowship'}</dd></div>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  {publications.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <p class="eyebrow">{pt ? 'Publicações' : 'Publications'}</p>
+        <h2>{pt ? 'Produção acadêmica' : 'Publications'}</h2>
+        <ol class="pubs">
+          {publications.map((p) => (
+            <li class="reveal">
+              <span class="mono muted">{p.year}</span>
+              <div>
+                <p class="pub-title">{p.url ? <a href={p.url}>{p.title}</a> : p.title}</p>
+                <p class="muted">{p.authors}. <em>{p.venue}</em>. {p.status && <span class="badge">{t(p.status, lang)}</span>}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )}
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{pt ? 'Formação em pesquisa' : 'Research training'}</p>
+          <h2>{pt ? 'Método antes de resultado' : 'Method before results'}</h2>
+          <p>{pt
+            ? 'Experiências que me treinaram para formular perguntas, desenhar experimentos e comunicar resultados.'
+            : 'Experiences that trained me to frame questions, design experiments and communicate results.'}</p>
+        </div>
+      </div>
+      <ul class="timeline">
+        {researchTraining.map((r) => (
+          <li class="reveal">
+            <span class="when">{t(r.period, lang)} · {t(r.org, lang)}</span>
+            <h3>{t(r.title, lang)}</h3>
+            <p class="muted">{t(r.text, lang)}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{pt ? 'Interesses' : 'Interests'}</p>
+          <h2>{pt ? 'Áreas de interesse' : 'Areas of interest'}</h2>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        {interests.map((i) => (
+          <article class="card interest reveal">
+            <span class="interest-icon"><Icon name={i.icon} size={20} /></span>
+            <div>
+              <h3>{t(i.title, lang)}</h3>
+              <p class="muted">{t(i.text, lang)}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">{pt ? 'Projetos relacionados' : 'Related projects'}</p>
+          <h2>{pt ? 'Pesquisa aplicada e estudos' : 'Applied research & studies'}</h2>
+        </div>
+        <a class="link-arrow" href={routes.projects[lang]}>{pt ? 'Todos os projetos' : 'All projects'} <Icon name="arrow-right" size={16} /></a>
+      </div>
+      <div class="grid grid-2">
+        {researchProjects.map((p) => <ProjectCard project={p} lang={lang} detailed />)}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .current { padding: clamp(1.5rem, 4vw, 2.5rem); border-left: 3px solid var(--accent); }
+  .current h2 { margin-top: 1rem; font-size: clamp(1.5rem, 3vw, 2rem); }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+  .stage { display: flex; gap: 0.7rem; align-items: flex-start; background: var(--surface-2); border-radius: var(--radius-sm); padding: 0.9rem 1rem; font-size: 0.97rem; }
+  .stage :global(.icon) { color: var(--accent); margin-top: 0.2rem; }
+  dl { display: flex; flex-wrap: wrap; gap: 0.75rem 2.5rem; margin: 1.5rem 0 0; }
+  dt { font: 500 0.72rem var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
+  dd { margin: 0.15rem 0 0; font-weight: 500; }
+  .timeline h3 { margin: 0.25rem 0 0.4rem; }
+  .interest { display: flex; gap: 1rem; align-items: flex-start; }
+  .interest p { margin: 0; font-size: 0.97rem; }
+  .interest-icon {
+    display: inline-flex; width: 40px; height: 40px; align-items: center; justify-content: center; flex-shrink: 0;
+    border-radius: 10px; background: var(--accent-soft); color: var(--accent);
+  }
+  .pubs { list-style: none; padding: 0; margin: 1.5rem 0 0; }
+  .pubs li { display: grid; grid-template-columns: 4rem 1fr; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--border); }
+  .pub-title { font-weight: 600; margin: 0 0 0.2rem; }
+</style>
